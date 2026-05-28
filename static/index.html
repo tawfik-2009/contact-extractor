@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="مستخرج جهات">
+<meta name="theme-color" content="#0f0c29">
+<link rel="manifest" href="/static/manifest.json">
+<link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+<title>مستخرج جهات التواصل</title>
+<style>
+:root{
+  --bg:#0f0c29;
+  --bg2:#1a1740;
+  --card:rgba(255,255,255,0.06);
+  --border:rgba(255,255,255,0.12);
+  --purple:#a855f7;
+  --indigo:#6366f1;
+  --green:#22c55e;
+  --red:#ef4444;
+  --text:#fff;
+  --text2:rgba(255,255,255,0.6);
+  --text3:rgba(255,255,255,0.35);
+  --radius:16px;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{
+  font-family:'Segoe UI',Tahoma,Arial,sans-serif;
+  background:var(--bg);color:var(--text);
+  display:flex;flex-direction:column;
+}
+
+/* ── Top Bar ─────────────────────────────────── */
+.topbar{
+  background:rgba(15,12,41,0.95);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:12px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+  padding-top:calc(12px + env(safe-area-inset-top,0px));
+}
+.topbar-title{display:flex;align-items:center;gap:10px}
+.topbar-icon{
+  width:36px;height:36px;
+  background:linear-gradient(135deg,var(--purple),var(--indigo));
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+}
+.topbar h1{font-size:16px;font-weight:700;line-height:1.2}
+.topbar p{font-size:11px;color:var(--text2)}
+.logout-btn{
+  background:rgba(255,255,255,0.08);
+  border:1px solid var(--border);border-radius:8px;
+  color:var(--text2);font-size:12px;padding:6px 12px;
+  cursor:pointer;font-family:inherit;
+}
+
+/* ── Tab Bar ─────────────────────────────────── */
+.tabs{
+  display:flex;background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.tab{
+  flex:1;padding:12px 8px;text-align:center;
+  color:var(--text3);font-size:12px;font-weight:600;
+  cursor:pointer;border-bottom:2px solid transparent;
+  transition:color .2s,border-color .2s;
+  user-select:none;
+}
+.tab.active{color:var(--purple);border-color:var(--purple)}
+.tab-icon{font-size:18px;display:block;margin-bottom:2px}
+
+/* ── Pages ───────────────────────────────────── */
+.pages{flex:1;overflow:hidden;position:relative}
+.page{
+  position:absolute;inset:0;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:16px;
+  display:none;
+  padding-bottom:calc(16px + var(--safe-bottom));
+}
+.page.active{display:block}
+
+/* ── Cards ───────────────────────────────────── */
+.card{
+  background:var(--card);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px;margin-bottom:12px;
+}
+.card-title{
+  font-size:14px;font-weight:700;color:var(--purple);
+  margin-bottom:14px;display:flex;align-items:center;gap:6px;
+}
+
+/* ── Form Fields ─────────────────────────────── */
+.field{margin-bottom:14px}
+.field label{
+  font-size:12px;color:var(--text2);
+  display:block;margin-bottom:6px;
+}
+.field input,.field select,.field textarea{
+  width:100%;padding:12px 14px;
+  background:rgba(255,255,255,0.07);
+  border:1px solid var(--border);
+  border-radius:10px;color:var(--text);
+  font-size:14px;outline:none;
+  font-family:inherit;
+  transition:border-color .2s;
+  appearance:none;-webkit-appearance:none;
+}
+.field input:focus,.field select:focus{border-color:var(--purple)}
+.field input::placeholder{color:var(--text3)}
+.field select option{background:#1a1740;color:#fff}
+
+/* Quick buttons for business type */
+.quick-btns{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.qbtn{
+  padding:8px 14px;
+  background:rgba(168,85,247,0.12);
+  border:1px solid rgba(168,85,247,0.3);
+  border-radius:20px;
+  color:var(--text2);font-size:12px;font-weight:600;
+  cursor:pointer;font-family:inherit;
+  transition:all .2s;
+  white-space:nowrap;
+}
+.qbtn:active,.qbtn.sel{
+  background:linear-gradient(135deg,var(--purple),var(--indigo));
+  border-color:transparent;color:#fff;
+}
+
+/* Source selector */
+.source-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.src-btn{
+  padding:12px 8px;text-align:center;
+  background:rgba(255,255,255,0.05);
+  border:2px solid var(--border);
+  border-radius:12px;cursor:pointer;
+  font-family:inherit;color:var(--text2);
+  font-size:12px;font-weight:600;
+  transition:all .2s;
+}
+.src-btn .src-icon{font-size:22px;display:block;margin-bottom:4px}
+.src-btn.sel{
+  background:rgba(168,85,247,0.15);
+  border-color:var(--purple);color:#fff;
+}
+
+/* ── Search Button ───────────────────────────── */
+.search-btn{
+  width:100%;padding:16px;
+  background:linear-gradient(135deg,var(--purple),var(--indigo));
+  border:none;border-radius:12px;
+  color:#fff;font-size:16px;font-weight:700;
+  cursor:pointer;font-family:inherit;
+  box-shadow:0 8px 24px rgba(168,85,247,0.35);
+  transition:opacity .2s,transform .1s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.search-btn:active{opacity:.85;transform:scale(0.98)}
+.search-btn:disabled{opacity:.5;pointer-events:none}
+
+/* ── Progress ────────────────────────────────── */
+.progress-wrap{display:none}
+.progress-wrap.show{display:block}
+.progress-msg{
+  font-size:13px;color:var(--text2);
+  margin-bottom:8px;text-align:center;
+}
+.progress-bar-track{
+  background:rgba(255,255,255,0.08);
+  border-radius:8px;height:8px;overflow:hidden;
+}
+.progress-bar-fill{
+  height:100%;border-radius:8px;
+  background:linear-gradient(90deg,var(--purple),var(--indigo));
+  transition:width .4s ease;
+  min-width:4px;
+}
+.progress-count{
+  font-size:12px;color:var(--text3);
+  text-align:center;margin-top:6px;
+}
+
+.action-row{display:flex;gap:8px;margin-top:12px}
+.act-btn{
+  flex:1;padding:10px 8px;
+  background:rgba(255,255,255,0.07);
+  border:1px solid var(--border);border-radius:10px;
+  color:var(--text2);font-size:12px;font-weight:600;
+  cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;gap:4px;
+  transition:all .2s;
+}
+.act-btn:active{opacity:.7}
+.act-btn.stop{border-color:rgba(239,68,68,0.4);color:#fca5a5}
+
+/* ── Results ─────────────────────────────────── */
+.results-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:12px;
+}
+.results-count{
+  font-size:13px;color:var(--text2);
+}
+.results-count span{color:var(--purple);font-weight:700}
+
+.export-row{display:flex;gap:8px;margin-bottom:12px}
+.exp-btn{
+  flex:1;padding:10px;
+  border:1px solid;border-radius:10px;
+  font-size:12px;font-weight:700;
+  cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  transition:all .2s;
+}
+.exp-btn:active{opacity:.7}
+.exp-csv{background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.3);color:#4ade80}
+.exp-xl{background:rgba(34,197,94,0.15);border-color:rgba(34,197,94,0.5);color:#86efac}
+
+/* Result card */
+.result-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:14px;margin-bottom:10px;
+  animation:fadeUp .3s ease;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.result-name{
+  font-size:15px;font-weight:700;margin-bottom:4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.result-cat{
+  display:inline-block;
+  padding:3px 10px;
+  background:rgba(168,85,247,0.15);
+  border:1px solid rgba(168,85,247,0.3);
+  border-radius:20px;font-size:11px;color:var(--purple);
+  margin-bottom:10px;
+}
+.result-rating{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:3px 10px;
+  background:rgba(250,204,21,0.1);
+  border:1px solid rgba(250,204,21,0.3);
+  border-radius:20px;font-size:11px;color:#fde047;
+  margin-bottom:10px;margin-right:6px;
+}
+.contact-list{display:flex;flex-direction:column;gap:6px}
+.contact-item{
+  display:flex;align-items:center;gap:8px;
+  font-size:13px;color:var(--text2);
+}
+.contact-icon{
+  width:28px;height:28px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;
+}
+.ci-phone{background:rgba(34,197,94,0.15)}
+.ci-email{background:rgba(99,102,241,0.15)}
+.ci-web{background:rgba(59,130,246,0.15)}
+.ci-addr{background:rgba(251,146,60,0.15)}
+.ci-wa{background:rgba(34,197,94,0.2)}
+.ci-fb{background:rgba(59,130,246,0.15)}
+.ci-ig{background:rgba(236,72,153,0.15)}
+.ci-tw{background:rgba(14,165,233,0.15)}
+.contact-val{
+  flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  direction:ltr;text-align:right;
+}
+.contact-val a{color:inherit;text-decoration:none}
+.copy-btn{
+  background:none;border:none;color:var(--text3);
+  font-size:14px;cursor:pointer;padding:2px 4px;
+  flex-shrink:0;
+}
+.copy-btn:active{color:var(--green)}
+
+/* Empty state */
+.empty{
+  text-align:center;padding:60px 20px;
+  color:var(--text3);
+}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.empty h3{font-size:16px;margin-bottom:6px;color:var(--text2)}
+.empty p{font-size:13px;line-height:1.6}
+
+/* ── History ─────────────────────────────────── */
+.hist-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:14px;margin-bottom:10px;
+  cursor:pointer;
+  transition:border-color .2s;
+}
+.hist-card:active{border-color:var(--purple)}
+.hist-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.hist-query{font-size:14px;font-weight:700;flex:1}
+.hist-badge{
+  padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;
+  background:rgba(168,85,247,0.15);color:var(--purple);
+  border:1px solid rgba(168,85,247,0.3);
+  flex-shrink:0;margin-right:8px;
+}
+.hist-meta{font-size:12px;color:var(--text3);display:flex;gap:12px;flex-wrap:wrap}
+
+/* toast */
+.toast{
+  position:fixed;bottom:calc(80px + var(--safe-bottom));left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:#1e1b4b;border:1px solid var(--purple);
+  border-radius:20px;padding:8px 20px;
+  font-size:13px;color:#fff;
+  opacity:0;pointer-events:none;
+  transition:all .3s;z-index:999;
+  white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div class="topbar-title">
+    <div class="topbar-icon">🏗️</div>
+    <div>
+      <h1>مستخرج جهات التواصل</h1>
+      <p>شركات مقاولات · مكاتب هندسية · تصميم</p>
+    </div>
+  </div>
+  <button class="logout-btn" onclick="location.href='/logout'">خروج</button>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('search')">
+    <span class="tab-icon">🔍</span>بحث
+  </div>
+  <div class="tab" onclick="switchTab('results')">
+    <span class="tab-icon">📋</span>النتائج
+  </div>
+  <div class="tab" onclick="switchTab('history')">
+    <span class="tab-icon">🕐</span>السجل
+  </div>
+</div>
+
+<!-- Pages -->
+<div class="pages">
+
+  <!-- SEARCH PAGE -->
+  <div class="page active" id="page-search">
+
+    <div class="card">
+      <div class="card-title">⚡ اختر نوع النشاط</div>
+      <div class="quick-btns" id="quickBtns">
+        <button class="qbtn sel" onclick="setQuery(this,'شركات مقاولات')">🏗️ شركات مقاولات</button>
+        <button class="qbtn" onclick="setQuery(this,'مكاتب هندسية')">📐 مكاتب هندسية</button>
+        <button class="qbtn" onclick="setQuery(this,'مكاتب تصميم')">🎨 مكاتب تصميم</button>
+        <button class="qbtn" onclick="setQuery(this,'مقاولو بناء')">🧱 مقاولو بناء</button>
+        <button class="qbtn" onclick="setQuery(this,'شركات تشطيب')">🪟 شركات تشطيب</button>
+        <button class="qbtn" onclick="setQuery(this,'استشارات هندسية')">🔧 استشارات هندسية</button>
+      </div>
+      <div class="field">
+        <label>أو اكتب نوع النشاط يدوياً</label>
+        <input id="queryInput" type="text" placeholder="مثال: شركات مقاولات، مكاتب تصميم..." value="شركات مقاولات">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📍 الموقع الجغرافي</div>
+      <div class="quick-btns">
+        <button class="qbtn sel" onclick="setLocation(this,'جدة')">جدة</button>
+        <button class="qbtn" onclick="setLocation(this,'الرياض')">الرياض</button>
+        <button class="qbtn" onclick="setLocation(this,'مكة المكرمة')">مكة</button>
+        <button class="qbtn" onclick="setLocation(this,'المدينة المنورة')">المدينة</button>
+        <button class="qbtn" onclick="setLocation(this,'الدمام')">الدمام</button>
+        <button class="qbtn" onclick="setLocation(this,'السعودية')">السعودية</button>
+      </div>
+      <div class="field">
+        <input id="locationInput" type="text" placeholder="أو اكتب الموقع..." value="جدة">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🌐 مصدر البحث</div>
+      <div class="source-grid">
+        <button class="src-btn sel" onclick="setSource(this,'google')" id="src-google">
+          <span class="src-icon">🗺️</span>
+          خرائط جوجل
+        </button>
+        <button class="src-btn" onclick="setSource(this,'muqawil')" id="src-muqawil">
+          <span class="src-icon">🏛️</span>
+          منصة مقاول
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚙️ إعدادات البحث</div>
+      <div class="field">
+        <label>عدد النتائج المطلوبة</label>
+        <select id="maxResults">
+          <option value="10">10 نتائج (سريع)</option>
+          <option value="20" selected>20 نتيجة (عادي)</option>
+          <option value="50">50 نتيجة (أبطأ)</option>
+          <option value="100">100 نتيجة (طويل)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div class="card progress-wrap" id="progressWrap">
+      <div class="card-title">⏳ جاري البحث...</div>
+      <div class="progress-msg" id="progressMsg">جاري التهيئة...</div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+      </div>
+      <div class="progress-count" id="progressCount"></div>
+      <div class="action-row">
+        <button class="act-btn" id="pauseBtn" onclick="togglePause()">⏸️ إيقاف مؤقت</button>
+        <button class="act-btn stop" onclick="stopSearch()">⏹️ إنهاء</button>
+      </div>
+    </div>
+
+    <button class="search-btn" id="searchBtn" onclick="startSearch()">
+      🔍 ابدأ البحث
+    </button>
+
+  </div>
+
+  <!-- RESULTS PAGE -->
+  <div class="page" id="page-results">
+    <div id="resultsHeader" style="display:none">
+      <div class="results-header">
+        <div class="results-count">وجدنا <span id="resultsCount">0</span> نتيجة</div>
+        <div style="font-size:12px;color:var(--text3)" id="resultsQuery"></div>
+      </div>
+      <div class="export-row" id="exportRow" style="display:none">
+        <button class="exp-btn exp-csv" onclick="exportData('csv')">📥 CSV</button>
+        <button class="exp-btn exp-xl" onclick="exportData('excel')">📊 Excel</button>
+      </div>
+    </div>
+    <div id="resultsList">
+      <div class="empty">
+        <div class="empty-icon">🔍</div>
+        <h3>لا توجد نتائج بعد</h3>
+        <p>اذهب لتبويب "بحث" وابدأ<br>استخراج البيانات</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY PAGE -->
+  <div class="page" id="page-history">
+    <div id="historyList">
+      <div class="empty">
+        <div class="empty-icon">🕐</div>
+        <h3>لا يوجد سجل بعد</h3>
+        <p>سيظهر هنا سجل عمليات البحث<br>السابقة</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let currentJobId = null;
+let pollTimer = null;
+let isPaused = false;
+let currentSource = 'google';
+let selectedQuery = 'شركات مقاولات';
+let selectedLocation = 'جدة';
+
+// ── Tab switching ──────────────────────────────
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach((t,i)=>{
+    const names=['search','results','history'];
+    t.classList.toggle('active',names[i]===name);
+  });
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(name==='history') loadHistory();
+}
+
+// ── Quick select helpers ───────────────────────
+function setQuery(btn,val){
+  document.querySelectorAll('#quickBtns .qbtn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  document.getElementById('queryInput').value=val;
+  selectedQuery=val;
+}
+function setLocation(btn,val){
+  btn.closest('.card').querySelectorAll('.qbtn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  document.getElementById('locationInput').value=val;
+  selectedLocation=val;
+}
+function setSource(btn,val){
+  document.querySelectorAll('.src-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  currentSource=val;
+}
+
+// ── Start search ───────────────────────────────
+async function startSearch(){
+  const query=document.getElementById('queryInput').value.trim();
+  const location=document.getElementById('locationInput').value.trim();
+  const maxResults=parseInt(document.getElementById('maxResults').value);
+  if(!query){toast('⚠️ أدخل نوع النشاط التجاري');return}
+
+  document.getElementById('searchBtn').disabled=true;
+  document.getElementById('progressWrap').classList.add('show');
+  document.getElementById('progressMsg').textContent='جاري الاتصال...';
+  document.getElementById('progressBar').style.width='2%';
+  isPaused=false;
+  document.getElementById('pauseBtn').textContent='⏸️ إيقاف مؤقت';
+
+  // Clear old results
+  document.getElementById('resultsList').innerHTML='';
+  document.getElementById('resultsHeader').style.display='none';
+  document.getElementById('exportRow').style.display='none';
+  document.getElementById('resultsCount').textContent='0';
+
+  try{
+    const r=await fetch('/api/search',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({query,location,source:currentSource,max_results:maxResults})
+    });
+    const d=await r.json();
+    if(d.job_id){
+      currentJobId=d.job_id;
+      startPolling();
+    }else{
+      showError(d.error||'حدث خطأ');
+    }
+  }catch(e){
+    showError('تعذر الاتصال بالخادم');
+  }
+}
+
+function startPolling(){
+  clearInterval(pollTimer);
+  pollTimer=setInterval(pollStatus,1500);
+}
+
+async function pollStatus(){
+  if(!currentJobId)return;
+  try{
+    const r=await fetch('/api/status/'+currentJobId);
+    const d=await r.json();
+    updateProgress(d);
+    if(d.status==='done'||d.status==='error'||d.status==='stopped_early'){
+      clearInterval(pollTimer);
+      finishSearch(d);
+    }
+  }catch(e){}
+}
+
+function updateProgress(d){
+  document.getElementById('progressMsg').textContent=d.message||'';
+  document.getElementById('progressBar').style.width=(d.progress||0)+'%';
+  const cnt=d.results?d.results.length:0;
+  document.getElementById('progressCount').textContent=cnt>0?`تم استخراج ${cnt} نتيجة حتى الآن`:'';
+  // Live update results
+  if(d.results&&d.results.length>0){
+    renderResults(d.results,true);
+  }
+}
+
+function finishSearch(d){
+  document.getElementById('searchBtn').disabled=false;
+  document.getElementById('progressWrap').classList.remove('show');
+  if(d.status==='done'||d.status==='stopped_early'){
+    const cnt=d.results?d.results.length:0;
+    toast(`✅ اكتمل! ${cnt} نتيجة`);
+    renderResults(d.results||[]);
+    switchTab('results');
+  }else if(d.status==='error'){
+    showError(d.message||'حدث خطأ');
+  }
+}
+
+function showError(msg){
+  document.getElementById('searchBtn').disabled=false;
+  document.getElementById('progressWrap').classList.remove('show');
+  toast('❌ '+msg);
+}
+
+// ── Pause / Stop ───────────────────────────────
+async function togglePause(){
+  if(!currentJobId)return;
+  if(!isPaused){
+    await fetch('/api/pause/'+currentJobId,{method:'POST'});
+    isPaused=true;
+    document.getElementById('pauseBtn').textContent='▶️ استكمال';
+  }else{
+    await fetch('/api/resume/'+currentJobId,{method:'POST'});
+    isPaused=false;
+    document.getElementById('pauseBtn').textContent='⏸️ إيقاف مؤقت';
+  }
+}
+async function stopSearch(){
+  if(!currentJobId)return;
+  await fetch('/api/stop/'+currentJobId,{method:'POST'});
+}
+
+// ── Render results ─────────────────────────────
+function renderResults(results, live=false){
+  const list=document.getElementById('resultsList');
+  const hdr=document.getElementById('resultsHeader');
+  const cnt=document.getElementById('resultsCount');
+  const expRow=document.getElementById('exportRow');
+  const qEl=document.getElementById('resultsQuery');
+
+  if(!results||results.length===0){
+    if(!live){
+      list.innerHTML=`<div class="empty"><div class="empty-icon">😕</div><h3>لا توجد نتائج</h3><p>حاول تغيير كلمة البحث أو الموقع</p></div>`;
+      hdr.style.display='none';
+    }
+    return;
+  }
+
+  hdr.style.display='block';
+  cnt.textContent=results.length;
+  qEl.textContent=document.getElementById('queryInput').value.trim();
+  if(results.length>0)expRow.style.display='flex';
+
+  list.innerHTML='';
+  results.forEach(r=>list.appendChild(buildCard(r)));
+}
+
+function buildCard(r){
+  const div=document.createElement('div');
+  div.className='result-card';
+  let contacts='';
+
+  if(r.phone)       contacts+=contactItem('📞','ci-phone',r.phone,'tel:'+r.phone.replace(/\s/g,''));
+  if(r.whatsapp)    contacts+=contactItem('💬','ci-wa',r.whatsapp,'https://wa.me/'+r.whatsapp.replace(/[^0-9]/g,''),true);
+  if(r.email)       contacts+=contactItem('✉️','ci-email',r.email,'mailto:'+r.email,true);
+  if(r.website)     contacts+=contactItem('🌐','ci-web',r.website.replace(/^https?:\/\//,''),r.website,true);
+  if(r.address)     contacts+=contactItem('📍','ci-addr',r.address,null);
+  if(r.facebook)    contacts+=contactItem('👤','ci-fb','فيسبوك',r.facebook,true);
+  if(r.instagram)   contacts+=contactItem('📷','ci-ig','إنستغرام',r.instagram,true);
+  if(r.twitter)     contacts+=contactItem('🐦','ci-tw','تويتر',r.twitter,true);
+
+  div.innerHTML=`
+    <div class="result-name">${esc(r.name||'—')}</div>
+    ${r.category?`<span class="result-cat">${esc(r.category)}</span>`:''}
+    ${r.rating?`<span class="result-rating">⭐ ${esc(r.rating)}</span>`:''}
+    <div class="contact-list">${contacts||'<div style="color:var(--text3);font-size:12px">لا توجد بيانات تواصل</div>'}</div>
+    ${r.maps_url?`<div style="margin-top:8px"><a href="${r.maps_url}" target="_blank" style="color:var(--text3);font-size:11px;text-decoration:none">📌 عرض على الخريطة</a></div>`:''}
+  `;
+  return div;
+}
+
+function contactItem(icon,cls,label,href,copyable=false){
+  const val=href
+    ?`<a href="${href}" target="_blank">${esc(label)}</a>`
+    :esc(label);
+  const copy=copyable
+    ?`<button class="copy-btn" onclick="copyVal('${label.replace(/'/g,"\\'")}')">⎘</button>`
+    :'';
+  return `<div class="contact-item">
+    <div class="contact-icon ${cls}">${icon}</div>
+    <div class="contact-val">${val}</div>
+    ${copy}
+  </div>`;
+}
+
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function copyVal(val){
+  navigator.clipboard.writeText(val).then(()=>toast('✅ تم النسخ')).catch(()=>{});
+}
+
+// ── Export ─────────────────────────────────────
+async function exportData(fmt){
+  if(!currentJobId){toast('⚠️ لا توجد نتائج');return}
+  window.location='/api/export/'+currentJobId+'/'+fmt;
+}
+
+// ── History ────────────────────────────────────
+async function loadHistory(){
+  try{
+    const r=await fetch('/api/history');
+    const data=await r.json();
+    const list=document.getElementById('historyList');
+    if(!data||data.length===0){
+      list.innerHTML=`<div class="empty"><div class="empty-icon">🕐</div><h3>لا يوجد سجل بعد</h3><p>سيظهر هنا سجل عمليات البحث السابقة</p></div>`;
+      return;
+    }
+    list.innerHTML='';
+    data.forEach(h=>{
+      const d=document.createElement('div');
+      d.className='hist-card';
+      const src=h.source==='muqawil'?'منصة مقاول':'خرائط جوجل';
+      d.innerHTML=`
+        <div class="hist-top">
+          <div class="hist-query">${esc(h.query||'—')}</div>
+          <div class="hist-badge">${h.total_results||0} نتيجة</div>
+        </div>
+        <div class="hist-meta">
+          <span>📍 ${esc(h.location||'')}</span>
+          <span>🌐 ${src}</span>
+          <span>📅 ${h.date||''}</span>
+        </div>
+      `;
+      d.onclick=()=>loadHistoryResults(h);
+      list.appendChild(d);
+    });
+  }catch(e){}
+}
+
+async function loadHistoryResults(h){
+  try{
+    const r=await fetch('/api/history/'+h.job_id+'/results');
+    const results=await r.json();
+    currentJobId=h.job_id;
+    renderResults(results);
+    document.getElementById('resultsQuery').textContent=h.query;
+    switchTab('results');
+    toast(`📂 تم تحميل ${results.length} نتيجة`);
+  }catch(e){toast('❌ تعذر تحميل النتائج')}
+}
+
+// ── Toast ──────────────────────────────────────
+let toastTimer;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+// ── Service worker ─────────────────────────────
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/static/sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>

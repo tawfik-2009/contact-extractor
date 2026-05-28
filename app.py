@@ -115,7 +115,6 @@ def start_search():
     )
     thread.start()
     return jsonify({'job_id': job_id})
-    return jsonify({'job_id': job_id})
 
 
 @app.route('/api/status/<job_id>')

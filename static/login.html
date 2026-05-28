@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="مستخرج جهات">
+<meta name="theme-color" content="#0f0c29">
+<link rel="manifest" href="/static/manifest.json">
+<link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+<title>تسجيل الدخول</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{
+    font-family:'Segoe UI',Tahoma,sans-serif;
+    background:linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%);
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
+    padding:20px;
+  }
+  .card{
+    background:rgba(255,255,255,0.07);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:24px;
+    padding:40px 32px;
+    width:100%;max-width:380px;
+    box-shadow:0 25px 50px rgba(0,0,0,0.4);
+  }
+  .logo{
+    text-align:center;margin-bottom:32px;
+  }
+  .logo-icon{
+    width:72px;height:72px;
+    background:linear-gradient(135deg,#a855f7,#6366f1);
+    border-radius:20px;
+    display:inline-flex;align-items:center;justify-content:center;
+    font-size:32px;margin-bottom:12px;
+    box-shadow:0 8px 24px rgba(168,85,247,0.4);
+  }
+  .logo h1{color:#fff;font-size:22px;font-weight:700;margin-bottom:4px}
+  .logo p{color:rgba(255,255,255,0.5);font-size:13px}
+  label{color:rgba(255,255,255,0.7);font-size:14px;display:block;margin-bottom:6px}
+  .field{margin-bottom:20px}
+  input{
+    width:100%;padding:14px 16px;
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.15);
+    border-radius:12px;color:#fff;font-size:15px;
+    outline:none;transition:border-color .2s;
+    font-family:inherit;
+  }
+  input:focus{border-color:#a855f7}
+  input::placeholder{color:rgba(255,255,255,0.3)}
+  .btn{
+    width:100%;padding:15px;
+    background:linear-gradient(135deg,#a855f7,#6366f1);
+    border:none;border-radius:12px;
+    color:#fff;font-size:16px;font-weight:700;
+    cursor:pointer;margin-top:8px;
+    font-family:inherit;
+    box-shadow:0 8px 24px rgba(168,85,247,0.35);
+    transition:opacity .2s,transform .1s;
+  }
+  .btn:active{opacity:.85;transform:scale(0.98)}
+  .err{
+    background:rgba(239,68,68,0.15);
+    border:1px solid rgba(239,68,68,0.3);
+    border-radius:10px;padding:12px;
+    color:#fca5a5;font-size:14px;
+    text-align:center;margin-top:16px;
+    display:none;
+  }
+  .hint{
+    text-align:center;color:rgba(255,255,255,0.35);
+    font-size:12px;margin-top:20px;line-height:1.6;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">🏗️</div>
+    <h1>مستخرج جهات التواصل</h1>
+    <p>شركات مقاولات ومكاتب هندسية</p>
+  </div>
+  <div class="field">
+    <label>اسم المستخدم</label>
+    <input id="u" type="text" placeholder="أدخل اسم المستخدم" autocomplete="username">
+  </div>
+  <div class="field">
+    <label>كلمة المرور</label>
+    <input id="p" type="password" placeholder="أدخل كلمة المرور" autocomplete="current-password">
+  </div>
+  <button class="btn" onclick="doLogin()">دخول</button>
+  <div class="err" id="err">اسم المستخدم أو كلمة المرور غير صحيحة</div>
+  <p class="hint">admin / admin123</p>
+</div>
+<script>
+document.querySelectorAll('input').forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()}));
+async function doLogin(){
+  const u=document.getElementById('u').value.trim();
+  const p=document.getElementById('p').value.trim();
+  try{
+    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
+    const d=await r.json();
+    if(d.success){location.href='/'}
+    else{document.getElementById('err').style.display='block'}
+  }catch(e){document.getElementById('err').style.display='block'}
+}
+</script>
+</body>
+</html>
