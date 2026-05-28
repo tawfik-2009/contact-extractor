@@ -1,75 +1,69 @@
 @echo off
 chcp 65001 >nul
-title مستخرج جهات التواصل - شركات مقاولات
+title Contact Extractor
 
 echo.
-echo  ╔══════════════════════════════════════════════════════╗
-echo  ║    🏗️   مستخرج جهات التواصل - شركات مقاولات       ║
-echo  ╚══════════════════════════════════════════════════════╝
+echo ================================================
+echo   Contact Extractor - Muqawil / Google Maps
+echo ================================================
 echo.
 
-REM ── Check Python ──────────────────────────────────────────────────────────
 where python >nul 2>&1
 if %errorlevel% neq 0 (
-    echo  [خطأ] Python غير مثبت.
-    echo  حمّله من: https://python.org/downloads
-    echo  ثم فعّل "Add Python to PATH" عند التثبيت.
+    echo [ERROR] Python is not installed.
+    echo Download from: https://python.org/downloads
+    echo Make sure to check "Add Python to PATH"
     pause
     exit /b 1
 )
 
-REM ── Virtual environment ───────────────────────────────────────────────────
-echo  [1/4] جاري إعداد البيئة...
+echo [1/4] Setting up virtual environment...
 if not exist "venv" (
     python -m venv venv >nul 2>&1
-    echo        تم إنشاء البيئة.
+    echo       Done.
 ) else (
-    echo        البيئة موجودة.
+    echo       Already exists.
 )
 call venv\Scripts\activate.bat
 
-REM ── Install requirements ──────────────────────────────────────────────────
-echo  [2/4] جاري تثبيت المكتبات...
-pip install -r requirements.txt --quiet --disable-pip-version-check
+echo [2/4] Installing libraries...
+pip install flask flask-session flask-cors playwright openpyxl waitress requests beautifulsoup4 --quiet --disable-pip-version-check
 if %errorlevel% neq 0 (
-    echo  [خطأ] فشل تثبيت المكتبات. تحقق من الإنترنت.
+    echo [ERROR] Failed to install libraries. Check internet connection.
     pause
     exit /b 1
 )
-echo        تم تثبيت المكتبات.
+echo       Done.
 
-REM ── Playwright Chromium ───────────────────────────────────────────────────
-echo  [3/4] جاري تجهيز متصفح Chromium...
+echo [3/4] Installing Chromium browser...
 playwright install chromium >nul 2>&1
-echo        تم تجهيز المتصفح.
+echo       Done.
 
-REM ── Get local IP ─────────────────────────────────────────────────────────
-echo  [4/4] جاري تشغيل التطبيق...
+echo [4/4] Starting app...
+echo.
+
 for /f "tokens=2 delims=:" %%a in ('ipconfig ^| findstr /i "IPv4"') do (
-    set LOCAL_IP=%%a
-    goto :found_ip
+    set RAW_IP=%%a
+    goto :found
 )
-:found_ip
-set LOCAL_IP=%LOCAL_IP: =%
+:found
+set LOCAL_IP=%RAW_IP: =%
 
+echo ================================================
+echo   App is running!
+echo   Computer : http://localhost:5000
+echo   iPhone   : http://%LOCAL_IP%:5000
+echo   Username : admin
+echo   Password : admin123
+echo ================================================
 echo.
-echo  ╔══════════════════════════════════════════════════════╗
-echo  ║   ✅ التطبيق يعمل الآن!                             ║
-echo  ╠══════════════════════════════════════════════════════╣
-echo  ║   💻 على الكمبيوتر : http://localhost:5000          ║
-echo  ║   📱 على الآيفون   : http://%LOCAL_IP%:5000    ║
-echo  ╠══════════════════════════════════════════════════════╣
-echo  ║   يوزر: admin   ^|   باسورد: admin123               ║
-echo  ╚══════════════════════════════════════════════════════╝
-echo.
-echo  [اضغط Ctrl+C لإيقاف التطبيق]
+echo   [Keep this window open while using the app]
 echo.
 
-REM Open browser automatically
 start /b cmd /c "timeout /t 2 >nul && start http://localhost:5000"
 
 python app.py
 
 echo.
-echo  [تم] تم إيقاف التطبيق.
+echo App stopped.
 pause
