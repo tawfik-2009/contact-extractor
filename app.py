@@ -294,12 +294,25 @@ def export_excel(job_id):
 # ─── Entry Point ──────────────────────────────────────────────────────────────
 
 if __name__ == '__main__':
-    import sys, io
-    # Ensure UTF-8 output on Windows console
+    import sys, io, socket
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
-    print('\n' + '=' * 50)
-    print('  Contact-AI - استخراج بيانات العملاء')
-    print('  URL: http://localhost:5000')
-    print('=' * 50 + '\n')
-    app.run(debug=False, port=5000, threaded=True)
+
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('8.8.8.8', 80))
+        local_ip = s.getsockname()[0]
+        s.close()
+    except Exception:
+        local_ip = '127.0.0.1'
+
+    print('\n' + '=' * 55)
+    print('   🏗️  مستخرج جهات التواصل - شركات مقاولات')
+    print('=' * 55)
+    print(f'   💻 على الكمبيوتر  : http://localhost:5000')
+    print(f'   📱 على الآيفون    : http://{local_ip}:5000')
+    print('=' * 55)
+    print('   يوزر: admin   |   باسورد: admin123')
+    print('=' * 55 + '\n')
+
+    app.run(debug=False, host='0.0.0.0', port=5000, threaded=True)
