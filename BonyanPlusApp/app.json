@@ -5,17 +5,13 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
-    "icon": "./assets/icon.png",
     "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
       "backgroundColor": "#0e4d8d"
     },
     "android": {
       "package": "com.bonyanplus.app",
       "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0e4d8d"
       },
       "permissions": [
@@ -28,18 +24,7 @@
       "bundleIdentifier": "com.bonyanplus.app"
     },
     "plugins": [
-      "expo-splash-screen",
-      [
-        "react-native-webview",
-        {
-          "useWebkit": true
-        }
-      ]
-    ],
-    "extra": {
-      "eas": {
-        "projectId": "your-project-id-here"
-      }
-    }
+      "expo-splash-screen"
+    ]
   }
 }
